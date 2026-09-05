@@ -68,7 +68,7 @@ services:
 
     environment:
 
-      SEATA_IP: 127.0.0.1
+      SEATA_IP: 192.168.0.110
 
       SEATA_PORT: 8091
 
@@ -78,7 +78,7 @@ services:
 
       TZ: Asia/Shanghai
 
-      JAVA_OPTS: "-Dseata.ip=127.0.0.1"
+      JAVA_OPTS: "-Dseata.ip=192.168.0.110"
 
     ports:
 

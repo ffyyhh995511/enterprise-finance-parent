@@ -56,6 +56,9 @@ cd enterprise-finance-parent
 
 3. 启动中间件：
 
+> **⚠️ 注意：修改 Seata 注册 IP**
+> 在启动之前，请打开 `deploy/docker-compose.yml` 文件，将 `seata-server` 配置中的 `SEATA_IP` 和 `JAVA_OPTS` 里的 IP 地址（目前配置为 `192.168.0.110`，这是某个开发者的本机 IPv4 地址）修改为你自己本机的物理局域网 IPv4 地址（可以通过 `ipconfig` 命令查看，建议使用“无线局域网适配器 WLAN”或“以太网适配器”下的 IPv4 地址）。**不要使用 `127.0.0.1`**，否则本地 IDE 中的微服务将无法连接到 Docker 内部的 Seata 服务。
+
 ```powershell
 docker compose -f deploy/docker-compose.yml up -d
 ```

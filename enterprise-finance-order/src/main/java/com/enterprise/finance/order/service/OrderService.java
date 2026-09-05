@@ -11,10 +11,12 @@ import com.enterprise.finance.order.entity.Order;
 import com.enterprise.finance.order.mapper.OrderMapper;
 import io.seata.spring.annotation.GlobalTransactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class OrderService {
@@ -54,6 +56,8 @@ public class OrderService {
         order.setAmount(request.getAmount());
         order.setStatus("CREATED");
         orderMapper.insert(order);
+
+        log.info("create order success: {}", order.getId());
 
         R<UserDTO> deductResult = userFeignClient.deduct(request.getUserId(), request.getAmount());
         if (!deductResult.isSuccess()) {
