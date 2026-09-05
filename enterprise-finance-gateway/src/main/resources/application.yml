@@ -1,0 +1,43 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: enterprise-finance-gateway
+  cloud:
+    nacos:
+      username: nacos
+      password: nacos
+      discovery:
+        server-addr: 127.0.0.1:8848
+      config:
+        server-addr: 127.0.0.1:8848
+        file-extension: yml
+        group: DEFAULT_GROUP
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+      routes:
+        - id: user-service
+          uri: lb://enterprise-finance-user
+          predicates:
+            - Path=/user/**
+        - id: order-service
+          uri: lb://enterprise-finance-order
+          predicates:
+            - Path=/order/**
+    loadbalancer:
+      nacos:
+        enabled: true
+  config:
+    import:
+      - optional:nacos:enterprise-finance-common.yml
+      - optional:nacos:${spring.application.name}.yml
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,gateway

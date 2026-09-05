@@ -1,0 +1,117 @@
+services:
+
+  nacos:
+
+    image: docker.m.daocloud.io/nacos/nacos-server:v2.3.2
+
+    container_name: enterprise-nacos
+
+    hostname: nacos
+
+    environment:
+
+      MODE: standalone
+
+      PREFER_HOST_MODE: hostname
+
+      NACOS_AUTH_ENABLE: "true"
+
+      NACOS_AUTH_TOKEN: VGhpc0lzTXlDdXN0b21TZWNyZXRLZXkwMTIzNDU2Nzg=
+
+      NACOS_AUTH_IDENTITY_KEY: serverIdentity
+
+      NACOS_AUTH_IDENTITY_VALUE: security
+
+      JVM_XMS: 256m
+
+      JVM_XMX: 512m
+
+      TZ: Asia/Shanghai
+
+    ports:
+
+      - "8848:8848"
+
+      - "9848:9848"
+
+      - "9849:9849"
+
+    extra_hosts:
+
+      - "host.docker.internal:host-gateway"
+
+    healthcheck:
+
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:8848/nacos/v1/console/health/readiness || exit 1"]
+
+      interval: 10s
+
+      timeout: 5s
+
+      retries: 30
+
+      start_period: 40s
+
+
+
+  seata-server:
+
+    image: docker.1ms.run/seataio/seata-server:2.0.0
+
+    container_name: enterprise-seata
+
+    depends_on:
+
+      nacos:
+
+        condition: service_healthy
+
+    environment:
+
+      SEATA_IP: 127.0.0.1
+
+      SEATA_PORT: 8091
+
+      STORE_MODE: db
+
+      SEATA_CONFIG_NAME: file:/seata-server/resources/application
+
+      TZ: Asia/Shanghai
+
+      JAVA_OPTS: "-Dseata.ip=127.0.0.1"
+
+    ports:
+
+      - "8091:8091"
+
+      - "7091:7091"
+
+    volumes:
+
+      - ./seata/application.yml:/seata-server/resources/application.yml
+
+    extra_hosts:
+
+      - "host.docker.internal:host-gateway"
+
+
+
+  sentinel-dashboard:
+
+    image: docker.1ms.run/bladex/sentinel-dashboard:1.8.6
+
+    container_name: enterprise-sentinel
+
+    environment:
+
+      JAVA_OPTS: "-Dserver.port=8858 -Dcsp.sentinel.dashboard.server=localhost:8858 -Dproject.name=sentinel-dashboard"
+
+      TZ: Asia/Shanghai
+
+    ports:
+
+      # Windows Hyper-V 常保留 8858，宿主机改用 18858
+
+      - "18858:8858"
+
+

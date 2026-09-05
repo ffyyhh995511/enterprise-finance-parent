@@ -1,0 +1,21 @@
+demo:
+  message: hello from nacos shared config
+  timeout-ms: 200
+
+feign:
+  sentinel:
+    enabled: true
+  client:
+    config:
+      default:
+        connectTimeout: 5000
+        readTimeout: 10000
+
+seata:
+  enabled: true
+  tx-service-group: enterprise_tx_group
+  service:
+    vgroup-mapping:
+      enterprise_tx_group: default
+    grouplist:
+      default: 127.0.0.1:8091

@@ -1,0 +1,52 @@
+server:
+  port: 7091
+
+spring:
+  application:
+    name: seata-server
+
+console:
+  user:
+    username: seata
+    password: seata
+
+logging:
+  file:
+    path: ${user.home}/logs/seata
+
+seata:
+  security:
+    secretKey: seata
+    tokenValidityInMilliseconds: 1800000
+    csrf-ignore-urls: /**
+    ignore:
+      urls: /**
+  config:
+    type: file
+  registry:
+    type: nacos
+    nacos:
+      application: seata-server
+      server-addr: nacos:8848
+      group: SEATA_GROUP
+      namespace:
+      cluster: default
+      username: nacos
+      password: nacos
+  store:
+    mode: db
+    db:
+      datasource: druid
+      db-type: mysql
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      url: jdbc:mysql://host.docker.internal:3306/seata?rewriteBatchedStatements=true&useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+      user: root
+      password: 123456
+      min-conn: 5
+      max-conn: 100
+      global-table: global_table
+      branch-table: branch_table
+      lock-table: lock_table
+      distributed-lock-table: distributed_lock
+      query-limit: 1000
+      max-wait: 5000
