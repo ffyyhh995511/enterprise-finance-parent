@@ -1,117 +1,96 @@
 services:
 
   nacos:
-
+    # 镜像地址，使用了 daocloud 加速源，避免国内拉取 Docker Hub 失败
     image: docker.m.daocloud.io/nacos/nacos-server:v2.3.2
-
+    # 容器名称
     container_name: enterprise-nacos
-
+    # 容器内的主机名，在 Docker 内部网络中其他容器可以通过 'nacos' 访问到它
     hostname: nacos
-
     environment:
-
+      # 以“单机模式”启动（非集群，适合本地开发）
       MODE: standalone
-
+      # 偏好使用主机名注册
       PREFER_HOST_MODE: hostname
-
+      # 开启 Nacos 鉴权（需要账号密码登录）
       NACOS_AUTH_ENABLE: "true"
-
+      # 自定义的 JWT Token 密钥（Base64编码，长度需大于32字符）
       NACOS_AUTH_TOKEN: VGhpc0lzTXlDdXN0b21TZWNyZXRLZXkwMTIzNDU2Nzg=
-
+      # 服务间通信的身份标识 Key
       NACOS_AUTH_IDENTITY_KEY: serverIdentity
-
+      # 服务间通信的身份标识 Value
       NACOS_AUTH_IDENTITY_VALUE: security
-
+      # 限制 JVM 最小和最大内存（防止本地开发机卡死）
       JVM_XMS: 256m
-
       JVM_XMX: 512m
-
+      # 设置时区为中国上海
       TZ: Asia/Shanghai
-
     ports:
-
+      # 映射 HTTP 核心端口（UI 控制台和 OpenAPI）
       - "8848:8848"
-
+      # 映射 gRPC 端口（用于客户端长连接）
       - "9848:9848"
-
+      # 映射 gRPC 端口（用于集群间同步）
       - "9849:9849"
-
     extra_hosts:
-
+      # 让容器内能够通过 host.docker.internal 访问到宿主机 (用于连宿主机的 MySQL 等)
       - "host.docker.internal:host-gateway"
-
     healthcheck:
-
+      # 健康检查：不断请求 readiness 接口，直到返回成功才算“健康”
       test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:8848/nacos/v1/console/health/readiness || exit 1"]
-
+      # 每 10 秒查一次
       interval: 10s
-
       timeout: 5s
-
+      # 最多重试 30 次
       retries: 30
-
+      # 给 Nacos 40 秒的启动缓冲时间
       start_period: 40s
 
-
-
   seata-server:
-
     image: docker.1ms.run/seataio/seata-server:2.0.0
-
     container_name: enterprise-seata
-
     depends_on:
-
       nacos:
-
+        # 依赖关系：必须等上面的 Nacos 状态变为 healthy (健康) 后，Seata 才会开始启动
         condition: service_healthy
-
     environment:
-
+      # [关键] 强制将宿主机的局域网 IP 注册到 Nacos，让外部 IDE(宿主机) 里的微服务能连上
+      # ⚠️ 注意：不要使用 127.0.0.1，请改为你自己的本机 IPv4 物理局域网地址
       SEATA_IP: 192.168.0.110
-
+      # Seata 的服务端口
       SEATA_PORT: 8091
-
+      # 事务日志存储模式：db，意味着 Seata 会连 MySQL 来存数据（即 seata 库里的表）
       STORE_MODE: db
-
+      # 告诉 Seata 启动时去哪里读配置文件
       SEATA_CONFIG_NAME: file:/seata-server/resources/application
-
       TZ: Asia/Shanghai
-
+      # JVM 参数级别再次强制指定注册 IP
       JAVA_OPTS: "-Dseata.ip=192.168.0.110"
-
     ports:
-
+      # Seata 事务通信端口（Netty）
       - "8091:8091"
-
+      # Seata 控制台 HTTP 端口
       - "7091:7091"
-
     volumes:
-
+      # 挂载宿主机的文件到容器内：把你本地的 application.yml 替换掉容器里的默认配置
       - ./seata/application.yml:/seata-server/resources/application.yml
-
     extra_hosts:
-
+      # 允许 Seata 访问宿主机（Seata 需要通过它连宿主机上的 MySQL:3306）
       - "host.docker.internal:host-gateway"
 
-
-
   sentinel-dashboard:
-
     image: docker.1ms.run/bladex/sentinel-dashboard:1.8.6
-
     container_name: enterprise-sentinel
-
     environment:
-
+      # JAVA_OPTS 启动参数说明：
+      # -Dserver.port=8858 : 指定 Dashboard 自身的 Web 端口为 8858
+      # -Dcsp.sentinel.dashboard.server=localhost:8858 : 告诉 Dashboard 自己的地址（用于它监控自己）
+      # -Dproject.name=sentinel-dashboard : 在列表里显示的项目名
       JAVA_OPTS: "-Dserver.port=8858 -Dcsp.sentinel.dashboard.server=localhost:8858 -Dproject.name=sentinel-dashboard"
-
       TZ: Asia/Shanghai
-
     ports:
-
-      # Windows Hyper-V 常保留 8858，宿主机改用 18858
-
+      # Windows Hyper-V 经常会把 8858 端口保留锁定导致无法使用，所以外部映射成了 18858
+      # 在浏览器要访问 http://localhost:18858 才能打开
       - "18858:8858"
 
 

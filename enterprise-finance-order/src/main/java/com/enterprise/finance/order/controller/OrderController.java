@@ -23,6 +23,8 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/order")
+// @RequiredArgsConstructor：Lombok 注解，自动为 final 成员变量生成带参构造函数。
+// 结合 Spring 4.3+ 特性，单构造函数会自动进行依赖注入（替代 @Autowired）。
 @RequiredArgsConstructor
 public class OrderController {
 
