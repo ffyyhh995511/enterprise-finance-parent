@@ -2,6 +2,11 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.enterprise.finance.user.mapper.IdentifierMapper">
 
+    <!-- 
+      [第二步：在 XML 里，完全不用管分页]
+      直接按照普通的列表查询写 SQL 即可。
+      千万不要在这里写 LIMIT，MyBatis-Plus 分页拦截器会在运行时自动帮你拼接 LIMIT 和计算 COUNT。
+    -->
     <select id="selectPageByCondition" resultType="com.enterprise.finance.user.entity.Identifier">
         SELECT * FROM identifier
         <where>

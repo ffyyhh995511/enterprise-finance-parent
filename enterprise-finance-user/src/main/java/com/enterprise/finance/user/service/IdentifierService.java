@@ -94,10 +94,15 @@ public class IdentifierService {
     }
 
     public PageResult<IdentifierDTO> page(IdentifierPageRequest request) {
+        // [第三步：在 Service 中调用，直接传 Page 对象]
+        // 1. 创建 MyBatis-Plus 的 Page 对象，传入当前页码和每页大小
         Page<Identifier> page = new Page<>(request.getCurrent(), request.getSize());
         
+        // 2. 调用 Mapper 查询，把 page 对象传进去。
+        // 执行完这行后，MyBatis-Plus 会自动将查到的总记录数填入 page.total，将结果列表填入 page.records
         Page<Identifier> resultPage = identifierMapper.selectPageByCondition(page, request);
         
+        // 3. 提取分页结果并转换为 DTO 返回
         return PageResult.of(
                 identifierConverter.doToDtoList(resultPage.getRecords()),
                 resultPage.getTotal(),

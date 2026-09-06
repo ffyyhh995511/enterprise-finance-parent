@@ -168,3 +168,49 @@ curl "http://localhost:8080/user/sentinel/fallback"
 ```
 
 Sentinel 控制台可观察实时规则与簇点。
+
+## MyBatis-Plus 分页使用说明 (XML 方式)
+
+与 `PageHelper` 使用 `ThreadLocal`（如 `PageHelper.startPage(...)`）不同，MyBatis-Plus 采用了**对象传参**的显式分页模式，避免了多线程环境下的分页参数污染问题。
+
+要使用基于 XML 的手写 SQL 分页，只需以下三步（可参考 `IdentifierService.java` 中的实现）：
+
+**第一步：在 Mapper 接口中，将 `Page` 放在第一个参数位置**
+```java
+// 只要把 Page 对象放在第一个参数，MyBatis-Plus 就会自动识别并拦截该方法的 SQL
+Page<Identifier> selectPageByCondition(Page<Identifier> page, @Param("req") IdentifierPageRequest request);
+```
+
+**第二步：在 XML 里，正常写 SQL，不要加 LIMIT**
+```xml
+<select id="selectPageByCondition" resultType="com.enterprise.finance.user.entity.Identifier">
+    SELECT * FROM identifier
+    <where>
+        <if test="req.deviceId != null and req.deviceId != ''">
+            AND device_id = #{req.deviceId}
+        </if>
+    </where>
+    ORDER BY id DESC
+</select>
+<!-- MyBatis-Plus 会在底层自动帮你拼接 LIMIT 和 COUNT 语句 -->
+```
+
+**第三步：在 Service 中调用，直接传 Page 对象**
+```java
+public PageResult<IdentifierDTO> page(IdentifierPageRequest request) {
+    // 1. 创建 Page 对象
+    Page<Identifier> page = new Page<>(request.getCurrent(), request.getSize());
+    
+    // 2. 调用查询
+    // 拦截器执行完毕后，page 对象的 total(总数) 和 records(列表) 会被自动填满
+    Page<Identifier> resultPage = identifierMapper.selectPageByCondition(page, request);
+    
+    // 3. 封装返回
+    return PageResult.of(
+            identifierConverter.doToDtoList(resultPage.getRecords()),
+            resultPage.getTotal(),
+            resultPage.getSize(),
+            resultPage.getCurrent()
+    );
+}
+```
