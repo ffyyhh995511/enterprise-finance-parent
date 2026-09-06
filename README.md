@@ -1,6 +1,6 @@
 # enterprise-finance-parent
 
-Spring Boot 3.2 + Spring Cloud 2023.0.x 微服务骨架，包含 Nacos、Nacos Config、LoadBalancer、OpenFeign、Sentinel、Gateway、Seata。
+Spring Boot 3.2 + Spring Cloud 2023.0.x 微服务骨架，实现金融级分布式系统和分布式数据一致性。包含 Nacos、Nacos Config、LoadBalancer、OpenFeign、Sentinel、Gateway、Seata。
 
 ## 环境要求
 
