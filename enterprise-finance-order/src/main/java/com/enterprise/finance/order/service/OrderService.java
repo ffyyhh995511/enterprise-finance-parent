@@ -10,7 +10,7 @@ import com.enterprise.finance.common.result.R;
 import com.enterprise.finance.order.entity.Order;
 import com.enterprise.finance.order.mapper.OrderMapper;
 import com.enterprise.finance.order.converter.OrderConverter;
-import io.seata.spring.annotation.GlobalTransactional;
+import org.apache.seata.spring.annotation.GlobalTransactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

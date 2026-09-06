@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.enterprise.finance.user.mapper.IdentifierMapper">
+
+    <select id="selectPageByCondition" resultType="com.enterprise.finance.user.entity.Identifier">
+        SELECT * FROM identifier
+        <where>
+            <if test="req.deviceId != null and req.deviceId != ''">
+                AND device_id = #{req.deviceId}
+            </if>
+        </where>
+        ORDER BY id DESC
+    </select>
+
+</mapper>

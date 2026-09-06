@@ -27,3 +27,17 @@ INSERT INTO `t_user` (`id`, `username`, `balance`)
 VALUES (1, 'alice', 10000.00),
        (2, 'bob', 500.00)
 ON DUPLICATE KEY UPDATE `username` = VALUES(`username`);
+
+CREATE TABLE IF NOT EXISTS `identifier` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `device_id` varchar(50) NOT NULL COMMENT '设备id',
+  `idfa` varchar(255) DEFAULT NULL COMMENT '原始 IDFA (仅限 iOS)',
+  `anon_id` varchar(255) DEFAULT NULL COMMENT 'meta的id 客户信息参数',
+  `app_version` varchar(255) DEFAULT NULL COMMENT '系统版本',
+  `create_time` datetime NOT NULL COMMENT '创建时间',
+  `create_time_zone` int(4) NOT NULL COMMENT '创建时间时区',
+  `update_time` datetime NOT NULL COMMENT '更新时间',
+  `update_time_zone` int(4) NOT NULL COMMENT '更新时间时区',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE KEY `uk_device_id` (`device_id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='标识符';
