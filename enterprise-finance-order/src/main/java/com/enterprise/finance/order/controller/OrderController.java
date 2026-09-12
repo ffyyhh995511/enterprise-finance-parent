@@ -3,23 +3,16 @@ package com.enterprise.finance.order.controller;
 import com.alibaba.csp.sentinel.annotation.SentinelResource;
 import com.alibaba.csp.sentinel.slots.block.BlockException;
 import com.enterprise.finance.common.config.DemoProperties;
-import com.enterprise.finance.common.dto.CreateOrderRequest;
 import com.enterprise.finance.common.dto.DemoConfigDTO;
-import com.enterprise.finance.common.dto.OrderDTO;
-import com.enterprise.finance.common.dto.UserDTO;
+import com.enterprise.finance.user.api.dto.UserDTO;
 import com.enterprise.finance.common.result.R;
 import com.enterprise.finance.order.service.OrderService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/order")
@@ -31,24 +24,9 @@ public class OrderController {
     private final OrderService orderService;
     private final DemoProperties demoProperties;
 
-    @GetMapping("/{id}")
-    public R<OrderDTO> getById(@PathVariable Long id) {
-        return R.ok(orderService.getById(id));
-    }
-
-    @GetMapping("/list/{userId}")
-    public R<List<OrderDTO>> listByUserId(@PathVariable Long userId) {
-        return R.ok(orderService.listByUserId(userId));
-    }
-
     @GetMapping("/user/{userId}")
     public R<UserDTO> user(@PathVariable Long userId) {
         return R.ok(orderService.getUser(userId));
-    }
-
-    @PostMapping("/create")
-    public R<OrderDTO> create(@Valid @RequestBody CreateOrderRequest request) {
-        return R.ok(orderService.create(request));
     }
 
     @GetMapping("/config")

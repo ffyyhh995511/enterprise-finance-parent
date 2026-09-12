@@ -2,7 +2,7 @@ package com.enterprise.finance.user.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.enterprise.finance.common.dto.IdentifierPageRequest;
+import com.enterprise.finance.user.api.dto.IdentifierPageRequest;
 import com.enterprise.finance.user.entity.Identifier;
 import org.apache.ibatis.annotations.Param;
 

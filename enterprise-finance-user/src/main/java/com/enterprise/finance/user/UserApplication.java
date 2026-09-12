@@ -9,7 +9,7 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 
 @EnableDiscoveryClient
-@EnableFeignClients(basePackages = "com.enterprise.finance.common.feign")
+@EnableFeignClients(basePackages = "com.enterprise.finance.order.api.feign")
 @EnableConfigurationProperties(DemoProperties.class)
 @MapperScan("com.enterprise.finance.user.mapper")
 @SpringBootApplication(scanBasePackages = "com.enterprise.finance")

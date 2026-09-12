@@ -2,9 +2,9 @@ package com.enterprise.finance.user.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.enterprise.finance.common.dto.IdentifierDTO;
-import com.enterprise.finance.common.dto.IdentifierPageRequest;
-import com.enterprise.finance.common.dto.IdentifierSaveRequest;
+import com.enterprise.finance.user.api.dto.IdentifierDTO;
+import com.enterprise.finance.user.api.dto.IdentifierPageRequest;
+import com.enterprise.finance.user.api.dto.IdentifierSaveRequest;
 import com.enterprise.finance.common.exception.BusinessException;
 import com.enterprise.finance.common.result.PageResult;
 import com.enterprise.finance.user.converter.IdentifierConverter;

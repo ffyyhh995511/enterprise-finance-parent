@@ -1,8 +1,8 @@
 package com.enterprise.finance.user.controller;
 
-import com.enterprise.finance.common.dto.IdentifierDTO;
-import com.enterprise.finance.common.dto.IdentifierPageRequest;
-import com.enterprise.finance.common.dto.IdentifierSaveRequest;
+import com.enterprise.finance.user.api.dto.IdentifierDTO;
+import com.enterprise.finance.user.api.dto.IdentifierPageRequest;
+import com.enterprise.finance.user.api.dto.IdentifierSaveRequest;
 import com.enterprise.finance.common.result.PageResult;
 import com.enterprise.finance.common.result.R;
 import com.enterprise.finance.user.service.IdentifierService;

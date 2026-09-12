@@ -28,6 +28,10 @@ spring:
           uri: lb://enterprise-finance-order
           predicates:
             - Path=/order/**
+        - id: product-service
+          uri: lb://enterprise-finance-product
+          predicates:
+            - Path=/product/**
     loadbalancer:
       nacos:
         enabled: true

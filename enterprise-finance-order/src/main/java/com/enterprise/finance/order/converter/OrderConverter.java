@@ -1,6 +1,6 @@
 package com.enterprise.finance.order.converter;
 
-import com.enterprise.finance.common.dto.OrderDTO;
+import com.enterprise.finance.order.api.dto.OrderDTO;
 import com.enterprise.finance.order.entity.Order;
 import org.mapstruct.Mapper;
 

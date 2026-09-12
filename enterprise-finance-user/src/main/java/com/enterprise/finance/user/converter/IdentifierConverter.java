@@ -1,7 +1,7 @@
 package com.enterprise.finance.user.converter;
 
-import com.enterprise.finance.common.dto.IdentifierDTO;
-import com.enterprise.finance.common.dto.IdentifierSaveRequest;
+import com.enterprise.finance.user.api.dto.IdentifierDTO;
+import com.enterprise.finance.user.api.dto.IdentifierSaveRequest;
 import com.enterprise.finance.user.entity.Identifier;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

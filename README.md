@@ -28,10 +28,29 @@ $env:Path = "$env:JAVA_HOME\bin;$env:Path"
 
 | 模块 | 端口 | 说明 |
 | --- | --- | --- |
-| enterprise-finance-gateway | 8080 | 网关，`/user/**`、`/order/**` |
+| enterprise-finance-gateway | 8080 | 网关，`/user/**`、`/order/**`、`/product/**` |
 | enterprise-finance-user | 8081 | 用户服务，库 `user` |
 | enterprise-finance-order | 8082 | 订单服务，库 `order` |
-| enterprise-finance-common | - | 统一响应、DTO、Feign 契约 |
+| enterprise-finance-product | 8083 | 商品服务，库 `product` |
+| enterprise-finance-common | - | 横切公共：`R`、分页、异常、Demo 配置 |
+| enterprise-finance-user-api | - | 用户契约：`UserApi` + DTO + Feign |
+| enterprise-finance-order-api | - | 订单契约：`OrderApi` + DTO + Feign |
+| enterprise-finance-product-api | - | 商品契约：`ProductApi` + DTO + Feign |
+
+依赖约定：
+
+- `common`：仅横切能力，不含业务 Feign/DTO
+- 业务服务依赖自身 `*-api`（本服务契约）+ 调用方需要的其他 `*-api`
+- 服务间接口定义在 `XxxApi`，消费方 `XxxFeignClient extends XxxApi`，提供方 `XxxInternalController implements XxxApi`。改契约时两边编译期一起变
+- App / 演示接口仍在 `XxxController`（如 `/user/orders`、`/product/purchase`、Sentinel）
+- 示例：`user` 依赖 `user-api` + `order-api`；`order` 依赖 `order-api` + `user-api`；`product` 依赖三者 api
+- `@EnableFeignClients` 只扫描**需要调用**的 api Feign 包，避免全量启用
+
+| 服务 | 启用 Feign 包 |
+| --- | --- |
+| user | `com.enterprise.finance.order.api.feign` |
+| order | `com.enterprise.finance.user.api.feign` |
+| product | `user.api.feign` + `order.api.feign` |
 
 中间件由 `deploy/docker-compose.yml` 启动（本地已有 MySQL，不再容器化）：
 
@@ -52,7 +71,7 @@ cd enterprise-finance-parent
 .\deploy\init-mysql.ps1
 ```
 
-或手动执行 `deploy/sql` 下 `01` 到 `04` 的 SQL。
+或手动执行 `deploy/sql` 下 `01` 到 `05` 的 SQL。
 
 3. 启动中间件：
 
@@ -97,6 +116,7 @@ mvn -DskipTests clean package
 - `enterprise-finance-gateway`
 - `enterprise-finance-user`
 - `enterprise-finance-order`
+- `enterprise-finance-product`
 
 IDE 运行各模块 `*Application`，或：
 
@@ -104,9 +124,10 @@ IDE 运行各模块 `*Application`，或：
 java -jar enterprise-finance-gateway\target\enterprise-finance-gateway-1.0.0-SNAPSHOT.jar
 java -jar enterprise-finance-user\target\enterprise-finance-user-1.0.0-SNAPSHOT.jar
 java -jar enterprise-finance-order\target\enterprise-finance-order-1.0.0-SNAPSHOT.jar
+java -jar enterprise-finance-product\target\enterprise-finance-product-1.0.0-SNAPSHOT.jar
 ```
 
-启动后在 Nacos 服务列表应看到 `enterprise-finance-gateway`、`enterprise-finance-user`、`enterprise-finance-order`、`seata-server`。
+启动后在 Nacos 服务列表应看到 `enterprise-finance-gateway`、`enterprise-finance-user`、`enterprise-finance-order`、`enterprise-finance-product`、`seata-server`。
 
 ## 验收接口
 
@@ -117,6 +138,7 @@ java -jar enterprise-finance-order\target\enterprise-finance-order-1.0.0-SNAPSHO
 ```bash
 curl http://localhost:8080/user/config
 curl http://localhost:8080/order/config
+curl http://localhost:8080/product/config
 ```
 
 在 Nacos 修改 `enterprise-finance-user.yml` 的 `demo.message` 后再次调用，应返回新值（`@RefreshScope`）。
@@ -127,6 +149,33 @@ curl http://localhost:8080/order/config
 curl http://localhost:8080/user/1
 curl http://localhost:8080/order/user/1
 curl http://localhost:8080/user/orders/1
+curl http://localhost:8080/product/1
+curl http://localhost:8080/product/user/1
+curl http://localhost:8080/product/orders/1
+```
+
+### 商品链路联调（user -> product -> order）
+
+只读串调（查用户、商品、该用户订单列表）：
+
+```bash
+curl http://localhost:8080/product/chain/1/1
+```
+
+下单购买（扣库存 + 调 order 创建订单并扣余额）：
+
+```bash
+curl -X POST http://localhost:8080/product/purchase ^
+  -H "Content-Type: application/json" ^
+  -d "{\"userId\":1,\"productId\":1,\"quantity\":1,\"rollback\":false}"
+```
+
+回滚演示（库存、订单、余额均回滚）：
+
+```bash
+curl -X POST http://localhost:8080/product/purchase ^
+  -H "Content-Type: application/json" ^
+  -d "{\"userId\":1,\"productId\":1,\"quantity\":1,\"rollback\":true}"
 ```
 
 ### 分布式事务（Seata AT）

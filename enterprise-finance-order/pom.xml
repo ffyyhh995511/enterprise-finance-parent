@@ -19,6 +19,14 @@
             <artifactId>enterprise-finance-common</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.enterprise.finance</groupId>
+            <artifactId>enterprise-finance-order-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.enterprise.finance</groupId>
+            <artifactId>enterprise-finance-user-api</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>

@@ -1,10 +1,9 @@
 package com.enterprise.finance.user.service;
 
-import com.enterprise.finance.common.dto.OrderDTO;
-import com.enterprise.finance.common.dto.UserDTO;
+import com.enterprise.finance.order.api.dto.OrderDTO;
+import com.enterprise.finance.user.api.dto.UserDTO;
 import com.enterprise.finance.common.exception.BusinessException;
-import com.enterprise.finance.common.feign.OrderFeignClient;
-import com.enterprise.finance.common.result.R;
+import com.enterprise.finance.order.api.feign.OrderFeignClient;
 import com.enterprise.finance.user.entity.User;
 import com.enterprise.finance.user.mapper.UserMapper;
 import com.enterprise.finance.user.converter.UserConverter;
@@ -44,11 +43,7 @@ public class UserService {
 
     public List<OrderDTO> listOrders(Long userId) {
         requireUser(userId);
-        R<List<OrderDTO>> result = orderFeignClient.listByUserId(userId);
-        if (!result.isSuccess()) {
-            throw new BusinessException(result.getMessage());
-        }
-        return result.getData();
+        return orderFeignClient.listByUserId(userId);
     }
 
     private User requireUser(Long id) {

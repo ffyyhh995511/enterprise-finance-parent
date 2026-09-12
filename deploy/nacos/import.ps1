@@ -35,10 +35,13 @@ function Publish-NacosConfig {
 Publish-NacosConfig -DataId "enterprise-finance-common.yml" -Group "DEFAULT_GROUP" -Type "yaml" -FilePath "$configDir\enterprise-finance-common.yml"
 Publish-NacosConfig -DataId "enterprise-finance-user.yml" -Group "DEFAULT_GROUP" -Type "yaml" -FilePath "$configDir\enterprise-finance-user.yml"
 Publish-NacosConfig -DataId "enterprise-finance-order.yml" -Group "DEFAULT_GROUP" -Type "yaml" -FilePath "$configDir\enterprise-finance-order.yml"
+Publish-NacosConfig -DataId "enterprise-finance-product.yml" -Group "DEFAULT_GROUP" -Type "yaml" -FilePath "$configDir\enterprise-finance-product.yml"
 Publish-NacosConfig -DataId "enterprise-finance-gateway.yml" -Group "DEFAULT_GROUP" -Type "yaml" -FilePath "$configDir\enterprise-finance-gateway.yml"
 Publish-NacosConfig -DataId "enterprise-finance-user-sentinel-degrade" -Group "SENTINEL_GROUP" -Type "json" -FilePath "$configDir\enterprise-finance-user-sentinel-degrade.json"
 Publish-NacosConfig -DataId "enterprise-finance-user-sentinel-flow" -Group "SENTINEL_GROUP" -Type "json" -FilePath "$configDir\enterprise-finance-user-sentinel-flow.json"
 Publish-NacosConfig -DataId "enterprise-finance-order-sentinel-degrade" -Group "SENTINEL_GROUP" -Type "json" -FilePath "$configDir\enterprise-finance-order-sentinel-degrade.json"
 Publish-NacosConfig -DataId "enterprise-finance-order-sentinel-flow" -Group "SENTINEL_GROUP" -Type "json" -FilePath "$configDir\enterprise-finance-order-sentinel-flow.json"
+Publish-NacosConfig -DataId "enterprise-finance-product-sentinel-degrade" -Group "SENTINEL_GROUP" -Type "json" -FilePath "$configDir\enterprise-finance-product-sentinel-degrade.json"
+Publish-NacosConfig -DataId "enterprise-finance-product-sentinel-flow" -Group "SENTINEL_GROUP" -Type "json" -FilePath "$configDir\enterprise-finance-product-sentinel-flow.json"
 
 Write-Host "Nacos configs imported."

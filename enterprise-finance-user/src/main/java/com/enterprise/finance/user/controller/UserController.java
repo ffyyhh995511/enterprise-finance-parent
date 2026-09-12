@@ -4,19 +4,16 @@ import com.alibaba.csp.sentinel.annotation.SentinelResource;
 import com.alibaba.csp.sentinel.slots.block.BlockException;
 import com.enterprise.finance.common.config.DemoProperties;
 import com.enterprise.finance.common.dto.DemoConfigDTO;
-import com.enterprise.finance.common.dto.OrderDTO;
-import com.enterprise.finance.common.dto.UserDTO;
+import com.enterprise.finance.order.api.dto.OrderDTO;
 import com.enterprise.finance.common.result.R;
 import com.enterprise.finance.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -28,16 +25,6 @@ public class UserController {
 
     private final UserService userService;
     private final DemoProperties demoProperties;
-
-    @GetMapping("/{id}")
-    public R<UserDTO> getById(@PathVariable Long id) {
-        return R.ok(userService.getById(id));
-    }
-
-    @PostMapping("/{id}/deduct")
-    public R<UserDTO> deduct(@PathVariable Long id, @RequestParam BigDecimal amount) {
-        return R.ok(userService.deduct(id, amount));
-    }
 
     @GetMapping("/orders/{userId}")
     public R<List<OrderDTO>> orders(@PathVariable Long userId) {

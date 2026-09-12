@@ -1,0 +1,95 @@
+server:
+  port: 8083
+
+spring:
+  application:
+    name: enterprise-finance-product
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/product?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
+    username: root
+    password: 123456
+  cloud:
+    nacos:
+      username: nacos
+      password: nacos
+      discovery:
+        server-addr: 127.0.0.1:8848
+      config:
+        server-addr: 127.0.0.1:8848
+        file-extension: yml
+        group: DEFAULT_GROUP
+    sentinel:
+      transport:
+        dashboard: localhost:18858
+        port: 8721
+      eager: true
+      datasource:
+        degrade:
+          nacos:
+            server-addr: 127.0.0.1:8848
+            username: nacos
+            password: nacos
+            data-id: enterprise-finance-product-sentinel-degrade
+            group-id: SENTINEL_GROUP
+            data-type: json
+            rule-type: degrade
+        flow:
+          nacos:
+            server-addr: 127.0.0.1:8848
+            username: nacos
+            password: nacos
+            data-id: enterprise-finance-product-sentinel-flow
+            group-id: SENTINEL_GROUP
+            data-type: json
+            rule-type: flow
+  config:
+    import:
+      - optional:nacos:enterprise-finance-common.yml
+      - optional:nacos:${spring.application.name}.yml
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+feign:
+  sentinel:
+    enabled: true
+  client:
+    config:
+      default:
+        connectTimeout: 5000
+        readTimeout: 10000
+
+seata:
+  enabled: true
+  application-id: ${spring.application.name}
+  tx-service-group: enterprise_tx_group
+  enable-auto-data-source-proxy: true
+  data-source-proxy-mode: AT
+  registry:
+    type: nacos
+    nacos:
+      server-addr: 127.0.0.1:8848
+      group: SEATA_GROUP
+      namespace:
+      username: nacos
+      password: nacos
+      application: seata-server
+      cluster: default
+  service:
+    vgroup-mapping:
+      enterprise_tx_group: default
+    grouplist:
+      default: 127.0.0.1:8091
+
+demo:
+  message: product local default
+  timeout-ms: 200
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

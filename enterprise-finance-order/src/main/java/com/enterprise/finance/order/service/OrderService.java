@@ -1,12 +1,11 @@
 package com.enterprise.finance.order.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.enterprise.finance.common.dto.CreateOrderRequest;
-import com.enterprise.finance.common.dto.OrderDTO;
-import com.enterprise.finance.common.dto.UserDTO;
+import com.enterprise.finance.order.api.dto.CreateOrderRequest;
+import com.enterprise.finance.order.api.dto.OrderDTO;
+import com.enterprise.finance.user.api.dto.UserDTO;
 import com.enterprise.finance.common.exception.BusinessException;
-import com.enterprise.finance.common.feign.UserFeignClient;
-import com.enterprise.finance.common.result.R;
+import com.enterprise.finance.user.api.feign.UserFeignClient;
 import com.enterprise.finance.order.entity.Order;
 import com.enterprise.finance.order.mapper.OrderMapper;
 import com.enterprise.finance.order.converter.OrderConverter;
@@ -45,11 +44,7 @@ public class OrderService {
     }
 
     public UserDTO getUser(Long userId) {
-        R<UserDTO> result = userFeignClient.getById(userId);
-        if (!result.isSuccess()) {
-            throw new BusinessException(result.getMessage());
-        }
-        return result.getData();
+        return userFeignClient.getById(userId);
     }
 
     @GlobalTransactional(name = "create-order", rollbackFor = Exception.class)
@@ -62,10 +57,7 @@ public class OrderService {
 
         log.info("create order success: {}", order.getId());
 
-        R<UserDTO> deductResult = userFeignClient.deduct(request.getUserId(), request.getAmount());
-        if (!deductResult.isSuccess()) {
-            throw new BusinessException(deductResult.getMessage());
-        }
+        userFeignClient.deduct(request.getUserId(), request.getAmount());
         if (Boolean.TRUE.equals(request.getRollback())) {
             throw new BusinessException("manual rollback for seata demo");
         }

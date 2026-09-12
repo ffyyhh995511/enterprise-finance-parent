@@ -20,9 +20,13 @@
 
     <modules>
         <module>enterprise-finance-common</module>
+        <module>enterprise-finance-user-api</module>
+        <module>enterprise-finance-order-api</module>
+        <module>enterprise-finance-product-api</module>
         <module>enterprise-finance-gateway</module>
         <module>enterprise-finance-user</module>
         <module>enterprise-finance-order</module>
+        <module>enterprise-finance-product</module>
     </modules>
 
     <properties>
@@ -59,6 +63,21 @@
             <dependency>
                 <groupId>com.enterprise.finance</groupId>
                 <artifactId>enterprise-finance-common</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.enterprise.finance</groupId>
+                <artifactId>enterprise-finance-user-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.enterprise.finance</groupId>
+                <artifactId>enterprise-finance-order-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.enterprise.finance</groupId>
+                <artifactId>enterprise-finance-product-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
         </dependencies>
