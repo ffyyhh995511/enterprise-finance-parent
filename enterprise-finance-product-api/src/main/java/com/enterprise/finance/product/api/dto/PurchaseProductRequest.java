@@ -16,6 +16,4 @@ public class PurchaseProductRequest {
     @NotNull
     @Min(1)
     private Integer quantity = 1;
-
-    private Boolean rollback = Boolean.FALSE;
 }

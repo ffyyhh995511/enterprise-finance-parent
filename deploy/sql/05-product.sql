@@ -30,3 +30,13 @@ VALUES (1, 'Gold Fund Share', 100.00, 1000, 'ON_SALE'),
        (2, 'Bond Package A', 50.00, 500, 'ON_SALE'),
        (3, 'Insurance Plan B', 200.00, 200, 'ON_SALE')
 ON DUPLICATE KEY UPDATE `name` = VALUES(`name`);
+
+CREATE TABLE IF NOT EXISTS `t_tx_demo`
+(
+    `id`      BIGINT      NOT NULL COMMENT 'snowflake id',
+    `tag`     VARCHAR(64) NOT NULL COMMENT 'same tag for one demo run',
+    `service` VARCHAR(32) NOT NULL COMMENT 'user / order / product',
+    PRIMARY KEY (`id`),
+    KEY `idx_tag` (`tag`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='seata insert-chain demo';

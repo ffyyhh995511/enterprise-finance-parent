@@ -1,18 +1,22 @@
 package com.enterprise.finance.product.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.enterprise.finance.common.dto.TxDemoDTO;
 import com.enterprise.finance.order.api.dto.CreateOrderRequest;
 import com.enterprise.finance.order.api.dto.OrderDTO;
 import com.enterprise.finance.product.api.dto.ProductChainResultDTO;
 import com.enterprise.finance.product.api.dto.ProductDTO;
 import com.enterprise.finance.product.api.dto.PurchaseProductRequest;
+import com.enterprise.finance.product.api.dto.TxDemoChainResultDTO;
 import com.enterprise.finance.user.api.dto.UserDTO;
 import com.enterprise.finance.common.exception.BusinessException;
 import com.enterprise.finance.order.api.feign.OrderFeignClient;
 import com.enterprise.finance.user.api.feign.UserFeignClient;
 import com.enterprise.finance.product.converter.ProductConverter;
 import com.enterprise.finance.product.entity.Product;
+import com.enterprise.finance.product.entity.TxDemo;
 import com.enterprise.finance.product.mapper.ProductMapper;
+import com.enterprise.finance.product.mapper.TxDemoMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.seata.spring.annotation.GlobalTransactional;
@@ -21,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -28,6 +33,7 @@ import java.util.List;
 public class ProductService {
 
     private final ProductMapper productMapper;
+    private final TxDemoMapper txDemoMapper;
     private final ProductConverter productConverter;
     private final UserFeignClient userFeignClient;
     private final OrderFeignClient orderFeignClient;
@@ -92,12 +98,7 @@ public class ProductService {
         CreateOrderRequest orderRequest = new CreateOrderRequest();
         orderRequest.setUserId(request.getUserId());
         orderRequest.setAmount(amount);
-        orderRequest.setRollback(Boolean.FALSE);
         OrderDTO createdOrder = orderFeignClient.create(orderRequest);
-
-        if (Boolean.TRUE.equals(request.getRollback())) {
-            throw new BusinessException("manual rollback for product-order seata demo");
-        }
 
         UserDTO latestUser = getUser(request.getUserId());
         List<OrderDTO> orders = listOrders(request.getUserId());
@@ -107,6 +108,35 @@ public class ProductService {
                 createdOrder,
                 orders
         );
+    }
+
+    @GlobalTransactional(name = "tx-demo-insert-chain", rollbackFor = Exception.class)
+    public void insertChainThenRollback(String tag) {
+        if (tag == null || tag.isBlank()) {
+            tag = UUID.randomUUID().toString().replace("-", "");
+        }
+        orderFeignClient.insertTxDemo(tag);
+
+        TxDemo row = new TxDemo();
+        row.setTag(tag);
+        row.setService("product");
+        txDemoMapper.insert(row);
+        log.info("tx-demo product insert success: tag={}, id={}", tag, row.getId());
+
+        throw new BusinessException("seata tx-demo rollback after p/o/u insert, tag=" + tag);
+    }
+
+    public TxDemoChainResultDTO queryTxDemo(String tag) {
+        List<TxDemoDTO> userRows = userFeignClient.listTxDemo(tag);
+        List<TxDemoDTO> orderRows = orderFeignClient.listTxDemo(tag);
+        List<TxDemoDTO> productRows = txDemoMapper.selectList(new LambdaQueryWrapper<TxDemo>()
+                        .eq(TxDemo::getTag, tag)
+                        .orderByAsc(TxDemo::getId))
+                .stream()
+                .map(row -> new TxDemoDTO(row.getId(), row.getTag(), row.getService()))
+                .toList();
+        boolean rolledBack = userRows.isEmpty() && orderRows.isEmpty() && productRows.isEmpty();
+        return new TxDemoChainResultDTO(tag, userRows, orderRows, productRows, rolledBack);
     }
 
     @Transactional(rollbackFor = Exception.class)

@@ -1,5 +1,6 @@
 package com.enterprise.finance.order.controller.internal;
 
+import com.enterprise.finance.common.dto.TxDemoDTO;
 import com.enterprise.finance.order.api.OrderApi;
 import com.enterprise.finance.order.api.dto.CreateOrderRequest;
 import com.enterprise.finance.order.api.dto.OrderDTO;
@@ -28,5 +29,15 @@ public class OrderInternalController implements OrderApi {
     @Override
     public OrderDTO create(CreateOrderRequest request) {
         return orderService.create(request);
+    }
+
+    @Override
+    public TxDemoDTO insertTxDemo(String tag) {
+        return orderService.insertTxDemo(tag);
+    }
+
+    @Override
+    public List<TxDemoDTO> listTxDemo(String tag) {
+        return orderService.listTxDemo(tag);
     }
 }

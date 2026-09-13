@@ -23,3 +23,13 @@ CREATE TABLE IF NOT EXISTS `undo_log`
     UNIQUE KEY `ux_undo_log` (`xid`, `branch_id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='AT transaction mode undo table';
+
+CREATE TABLE IF NOT EXISTS `t_tx_demo`
+(
+    `id`      BIGINT      NOT NULL COMMENT 'snowflake id',
+    `tag`     VARCHAR(64) NOT NULL COMMENT 'same tag for one demo run',
+    `service` VARCHAR(32) NOT NULL COMMENT 'user / order / product',
+    PRIMARY KEY (`id`),
+    KEY `idx_tag` (`tag`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='seata insert-chain demo';

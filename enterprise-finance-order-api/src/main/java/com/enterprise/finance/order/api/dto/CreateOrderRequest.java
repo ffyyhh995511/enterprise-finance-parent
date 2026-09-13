@@ -15,6 +15,4 @@ public class CreateOrderRequest {
     @NotNull
     @DecimalMin("0.01")
     private BigDecimal amount;
-
-    private Boolean rollback = Boolean.FALSE;
 }

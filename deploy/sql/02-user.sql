@@ -28,6 +28,16 @@ VALUES (1, 'alice', 10000.00),
        (2, 'bob', 500.00)
 ON DUPLICATE KEY UPDATE `username` = VALUES(`username`);
 
+CREATE TABLE IF NOT EXISTS `t_tx_demo`
+(
+    `id`      BIGINT      NOT NULL COMMENT 'snowflake id',
+    `tag`     VARCHAR(64) NOT NULL COMMENT 'same tag for one demo run',
+    `service` VARCHAR(32) NOT NULL COMMENT 'user / order / product',
+    PRIMARY KEY (`id`),
+    KEY `idx_tag` (`tag`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='seata insert-chain demo';
+
 CREATE TABLE IF NOT EXISTS `identifier` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `device_id` varchar(50) NOT NULL COMMENT '设备id',

@@ -1,5 +1,6 @@
 package com.enterprise.finance.order.api.feign.fallback;
 
+import com.enterprise.finance.common.dto.TxDemoDTO;
 import com.enterprise.finance.common.exception.BusinessException;
 import com.enterprise.finance.order.api.dto.CreateOrderRequest;
 import com.enterprise.finance.order.api.dto.OrderDTO;
@@ -33,6 +34,18 @@ public class OrderFeignFallbackFactory implements FallbackFactory<OrderFeignClie
             public OrderDTO create(CreateOrderRequest request) {
                 log.warn("order-service create fallback, userId={}", request != null ? request.getUserId() : null, cause);
                 throw new BusinessException("order-service create degraded: " + cause.getMessage());
+            }
+
+            @Override
+            public TxDemoDTO insertTxDemo(String tag) {
+                log.warn("order-service insertTxDemo fallback, tag={}", tag, cause);
+                throw new BusinessException("order-service tx-demo degraded: " + cause.getMessage());
+            }
+
+            @Override
+            public List<TxDemoDTO> listTxDemo(String tag) {
+                log.warn("order-service listTxDemo fallback, tag={}", tag, cause);
+                throw new BusinessException("order-service tx-demo list degraded: " + cause.getMessage());
             }
         };
     }

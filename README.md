@@ -167,38 +167,21 @@ curl http://localhost:8080/product/chain/1/1
 ```bash
 curl -X POST http://localhost:8080/product/purchase ^
   -H "Content-Type: application/json" ^
-  -d "{\"userId\":1,\"productId\":1,\"quantity\":1,\"rollback\":false}"
+  -d "{\"userId\":1,\"productId\":1,\"quantity\":1}"
 ```
 
-回滚演示（库存、订单、余额均回滚）：
+### 分布式事务测算（Seata AT）
+
+仅保留 product 上这一组接口。三个库各有一张 `t_tx_demo`，用同一个 `tag` 串联一次写入。
+
+**过程：** `POST /product/tx-demo/rollback` 由 product 开启全局事务 → 调用 order → order 先调 user 插入，再自己插入 → 回到 product 插入 → product 抛异常，Seata 把三边插入一起回滚。
+
+**效果：** 接口固定失败（HTTP 400，错误信息里带 tag）。再查 `GET /product/tx-demo/{tag}`，`userRows` / `orderRows` / `productRows` 都应为空，`rolledBack` 为 `true`。
 
 ```bash
-curl -X POST http://localhost:8080/product/purchase ^
-  -H "Content-Type: application/json" ^
-  -d "{\"userId\":1,\"productId\":1,\"quantity\":1,\"rollback\":true}"
+curl -X POST "http://localhost:8080/product/tx-demo/rollback?tag=demo1"
+curl http://localhost:8080/product/tx-demo/demo1
 ```
-
-### 分布式事务（Seata AT）
-
-成功下单（alice 余额 10000，扣 100）：
-
-```bash
-curl -X POST http://localhost:8080/order/create ^
-  -H "Content-Type: application/json" ^
-  -d "{\"userId\":1,\"amount\":100,\"rollback\":false}"
-```
-
-再查 `GET /user/1`，余额减少；`GET /user/orders/1` 能看到订单。
-
-回滚演示（两边都不落库）：
-
-```bash
-curl -X POST http://localhost:8080/order/create ^
-  -H "Content-Type: application/json" ^
-  -d "{\"userId\":1,\"amount\":50,\"rollback\":true}"
-```
-
-余额不变，也不新增订单。
 
 ### 熔断 / 降级
 

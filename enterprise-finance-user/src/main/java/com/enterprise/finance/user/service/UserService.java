@@ -1,10 +1,14 @@
 package com.enterprise.finance.user.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.enterprise.finance.common.dto.TxDemoDTO;
 import com.enterprise.finance.order.api.dto.OrderDTO;
 import com.enterprise.finance.user.api.dto.UserDTO;
 import com.enterprise.finance.common.exception.BusinessException;
 import com.enterprise.finance.order.api.feign.OrderFeignClient;
+import com.enterprise.finance.user.entity.TxDemo;
 import com.enterprise.finance.user.entity.User;
+import com.enterprise.finance.user.mapper.TxDemoMapper;
 import com.enterprise.finance.user.mapper.UserMapper;
 import com.enterprise.finance.user.converter.UserConverter;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +27,7 @@ import java.util.List;
 public class UserService {
 
     private final UserMapper userMapper;
+    private final TxDemoMapper txDemoMapper;
     private final OrderFeignClient orderFeignClient;
     private final UserConverter userConverter;
 
@@ -44,6 +49,24 @@ public class UserService {
     public List<OrderDTO> listOrders(Long userId) {
         requireUser(userId);
         return orderFeignClient.listByUserId(userId);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public TxDemoDTO insertTxDemo(String tag) {
+        TxDemo row = new TxDemo();
+        row.setTag(tag);
+        row.setService("user");
+        txDemoMapper.insert(row);
+        return new TxDemoDTO(row.getId(), row.getTag(), row.getService());
+    }
+
+    public List<TxDemoDTO> listTxDemo(String tag) {
+        return txDemoMapper.selectList(new LambdaQueryWrapper<TxDemo>()
+                        .eq(TxDemo::getTag, tag)
+                        .orderByAsc(TxDemo::getId))
+                .stream()
+                .map(row -> new TxDemoDTO(row.getId(), row.getTag(), row.getService()))
+                .toList();
     }
 
     private User requireUser(Long id) {
