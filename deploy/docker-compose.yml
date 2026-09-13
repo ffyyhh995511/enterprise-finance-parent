@@ -93,4 +93,46 @@ services:
       # 在浏览器要访问 http://localhost:18858 才能打开
       - "18858:8858"
 
+  rocketmq-namesrv:
+    image: docker.1ms.run/apache/rocketmq:5.3.1
+    container_name: enterprise-rocketmq-namesrv
+    environment:
+      JAVA_OPT_EXT: "-Xms256m -Xmx256m"
+      TZ: Asia/Shanghai
+    ports:
+      - "9876:9876"
+    command: sh mqnamesrv
+
+  rocketmq-broker:
+    image: docker.1ms.run/apache/rocketmq:5.3.1
+    container_name: enterprise-rocketmq-broker
+    depends_on:
+      - rocketmq-namesrv
+    environment:
+      NAMESRV_ADDR: rocketmq-namesrv:9876
+      JAVA_OPT_EXT: "-Xms256m -Xmx256m"
+      TZ: Asia/Shanghai
+    ports:
+      - "10909:10909"
+      - "10911:10911"
+      - "10912:10912"
+    volumes:
+      - ./rocketmq/broker.conf:/tmp/broker.conf
+    command: sh mqbroker -n rocketmq-namesrv:9876 -c /tmp/broker.conf
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  rocketmq-dashboard:
+    image: docker.1ms.run/apacherocketmq/rocketmq-dashboard:2.0.0
+    container_name: enterprise-rocketmq-dashboard
+    depends_on:
+      - rocketmq-namesrv
+      - rocketmq-broker
+    environment:
+      JAVA_OPTS: "-Drocketmq.namesrv.addr=rocketmq-namesrv:9876"
+      TZ: Asia/Shanghai
+    ports:
+      # 容器内默认 8080，避开本机网关 8080
+      - "18080:8080"
+
 

@@ -85,6 +85,12 @@ seata:
     grouplist:
       default: 127.0.0.1:8091
 
+rocketmq:
+  name-server: 127.0.0.1:9876
+  producer:
+    group: user-demo-producer
+    send-message-timeout: 3000
+
 demo:
   message: user local default
   timeout-ms: 200

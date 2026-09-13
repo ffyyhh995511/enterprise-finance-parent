@@ -1,6 +1,6 @@
 # enterprise-finance-parent
 
-Spring Boot 3.2 + Spring Cloud 2023.0.x 微服务骨架，实现金融级分布式系统和分布式数据一致性。包含 Nacos、Nacos Config、LoadBalancer、OpenFeign、Sentinel、Gateway、Seata。
+Spring Boot 3.2 + Spring Cloud 2023.0.x 微服务骨架，实现金融级分布式系统和分布式数据一致性。包含 Nacos、Nacos Config、LoadBalancer、OpenFeign、Sentinel、Gateway、Seata、RocketMQ。
 
 ## 环境要求
 
@@ -22,6 +22,7 @@ $env:Path = "$env:JAVA_HOME\bin;$env:Path"
 | Nacos Server | 2.3.2 |
 | Seata Server | 2.0.0 |
 | Sentinel Dashboard | 1.8.6 |
+| RocketMQ | 5.3.1 |
 | MyBatis-Plus | 3.5.7 |
 
 ## 模块
@@ -60,6 +61,7 @@ $env:Path = "$env:JAVA_HOME\bin;$env:Path"
 | Nacos | http://localhost:8848/nacos | nacos / nacos |
 | Seata | 8091（控制台 7091） | 注册到 Nacos `SEATA_GROUP` |
 | Sentinel | http://localhost:18858 | sentinel / sentinel |
+| RocketMQ | namesrv 9876 / broker 10911 / 控制台 http://localhost:18080 | 无登录（Dashboard 2.0.0） |
 
 ## 启动顺序
 
@@ -75,8 +77,8 @@ cd enterprise-finance-parent
 
 3. 启动中间件：
 
-> **⚠️ 注意：修改 Seata 注册 IP**
-> 在启动之前，请打开 `deploy/docker-compose.yml` 文件，将 `seata-server` 配置中的 `SEATA_IP` 和 `JAVA_OPTS` 里的 IP 地址（目前配置为 `192.168.0.110`，这是某个开发者的本机 IPv4 地址）修改为你自己本机的物理局域网 IPv4 地址（可以通过 `ipconfig` 命令查看，建议使用“无线局域网适配器 WLAN”或“以太网适配器”下的 IPv4 地址）。**不要使用 `127.0.0.1`**，否则本地 IDE 中的微服务将无法连接到 Docker 内部的 Seata 服务。
+> **⚠️ 注意：修改 Seata / RocketMQ 注册 IP**
+> 启动前把本机局域网 IPv4（`ipconfig`，不要用 `127.0.0.1`）填到两处：`deploy/docker-compose.yml` 里 `seata-server` 的 `SEATA_IP` / `JAVA_OPTS`，以及 `deploy/rocketmq/broker.conf` 的 `brokerIP1`（目前示例是 `192.168.0.110`）。否则 IDE 里的微服务连不上 Docker 里的 Seata / Broker。
 
 ```powershell
 docker compose -f deploy/docker-compose.yml up -d
@@ -87,6 +89,8 @@ docker compose -f deploy/docker-compose.yml up -d
 - Nacos：`docker.m.daocloud.io/nacos/nacos-server:v2.3.2`（DaoCloud 白名单内）
 - Seata：`docker.1ms.run/seataio/seata-server:2.0.0`（官方 `apache/seata-server` 无 `2.0.0` 标签；DaoCloud 未收录 `seataio`）
 - Sentinel：`docker.1ms.run/bladex/sentinel-dashboard:1.8.6`（DaoCloud 未收录 `bladex`）
+- RocketMQ：`docker.1ms.run/apache/rocketmq:5.3.1`
+- RocketMQ Dashboard：`docker.1ms.run/apacherocketmq/rocketmq-dashboard:2.0.0`
 
 若某个镜像仍拉取失败，可单独 `docker pull` 对应地址排查，或把前缀换成 `docker.1panel.live/` 后重新 `up -d`。
 
@@ -182,6 +186,16 @@ curl -X POST http://localhost:8080/product/purchase ^
 curl -X POST "http://localhost:8080/product/tx-demo/rollback?tag=demo1"
 curl http://localhost:8080/product/tx-demo/demo1
 ```
+
+### RocketMQ（user 发送，order 消费）
+
+调用一次接口，user 向主题 `user-demo-topic` 同步发送 100 条消息，order 的 `UserDemoMessageConsumer` 逐条消费（看 order 日志 `consume user demo mq`）。
+
+```bash
+curl -X POST http://localhost:8080/user/mq/send-batch
+```
+
+成功时返回 `topic`、`batchId`、`count=100`。控制台：http://localhost:18080 ，可看 Topic `user-demo-topic` 和消费者组 `order-user-demo-consumer`。
 
 ### 熔断 / 降级
 

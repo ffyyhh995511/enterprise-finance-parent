@@ -6,15 +6,18 @@ import com.enterprise.finance.common.config.DemoProperties;
 import com.enterprise.finance.common.dto.DemoConfigDTO;
 import com.enterprise.finance.order.api.dto.OrderDTO;
 import com.enterprise.finance.common.result.R;
+import com.enterprise.finance.user.service.UserMqService;
 import com.enterprise.finance.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/user")
@@ -24,11 +27,20 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
+    private final UserMqService userMqService;
     private final DemoProperties demoProperties;
 
     @GetMapping("/orders/{userId}")
     public R<List<OrderDTO>> orders(@PathVariable Long userId) {
         return R.ok(userService.listOrders(userId));
+    }
+
+    /**
+     * 调用一次向 RocketMQ 发送 100 条消息，由 order 服务消费。
+     */
+    @PostMapping("/mq/send-batch")
+    public R<Map<String, Object>> sendMqBatch() {
+        return R.ok(userMqService.sendBatch());
     }
 
     @GetMapping("/config")
