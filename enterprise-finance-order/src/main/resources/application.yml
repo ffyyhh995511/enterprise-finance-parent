@@ -84,10 +84,26 @@ seata:
     grouplist:
       default: 127.0.0.1:8091
 
+# 消费者：yml 是默认值；本项目 Push 消费以 @RocketMQMessageListener 为准
+# 不要配 pull-consumer.group / pull-consumer.topic，否则会额外启动 Lite Pull Consumer
 rocketmq:
+  # 多个 NameServer 用分号分隔，例如 192.168.0.10:9876;192.168.0.11:9876
   name-server: 127.0.0.1:9876
+  # access-key / secret-key / namespace：生产集群开 ACL 或多租户时再打开
+  # access-key:
+  # secret-key:
   consumer:
     group: order-user-demo-consumer
+    # 集群消费：多实例分摊消息。广播用 BROADCASTING（每台都收到）
+    message-model: CLUSTERING
+    # 过滤方式，TAG 按标签；复杂条件可用 SQL92
+    selector-type: TAG
+    # 订阅哪些 Tag，* 表示全部。多个 Tag 用 ||，例如 PAID || REFUND
+    selector-expression: "*"
+    # 每次从 Broker 拉取的最大条数（Pull 模式生效；Push 监听以注解为准）
+    pull-batch-size: 10
+    # 打开消息轨迹，可在 Dashboard 查发送/消费链路
+    enable-msg-trace: true
 
 demo:
   message: order local default

@@ -85,11 +85,29 @@ seata:
     grouplist:
       default: 127.0.0.1:8091
 
+# 生产者：starter 在同时存在 name-server + producer.group 时自动注册 DefaultMQProducer / RocketMQTemplate
 rocketmq:
+  # 多个 NameServer 用分号分隔，例如 192.168.0.10:9876;192.168.0.11:9876
   name-server: 127.0.0.1:9876
+  # access-key / secret-key / namespace：生产集群开 ACL 或多租户时再打开
+  # access-key:
+  # secret-key:
   producer:
     group: user-demo-producer
+    # 同步发送等待 Broker ACK 的超时，单位毫秒
     send-message-timeout: 3000
+    # 同步发送失败后的内部重试次数（不含首次）；重试可能导致重复，消费端需幂等
+    retry-times-when-send-failed: 2
+    # 异步发送失败后的内部重试次数
+    retry-times-when-send-async-failed: 2
+    # 发送失败时换另一台 Broker 再试，降低单节点抖动影响
+    retry-next-server: true
+    # 单条消息体上限，单位字节，默认 4MB
+    max-message-size: 4194304
+    # 消息体超过该字节数则压缩后再发送，默认 4KB
+    compress-message-body-threshold: 4096
+    # 打开消息轨迹，可在 Dashboard 查发送/消费链路；本地 Broker 需能自动建轨迹 Topic
+    enable-msg-trace: true
 
 demo:
   message: user local default

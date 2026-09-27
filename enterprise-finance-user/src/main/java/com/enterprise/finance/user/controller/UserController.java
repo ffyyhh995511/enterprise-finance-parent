@@ -36,7 +36,8 @@ public class UserController {
     }
 
     /**
-     * 调用一次向 RocketMQ 发送 100 条消息，由 order 服务消费。
+     * 调用一次向 Topic {@code user-demo-topic} 同步发送 100 条消息，
+     * 由 order 的 UserDemoMessageConsumer（消费组 order-user-demo-consumer）消费。
      */
     @PostMapping("/mq/send-batch")
     public R<Map<String, Object>> sendMqBatch() {
